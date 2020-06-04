@@ -40,13 +40,11 @@ def map_placard_links(placard_links, link_dict):
 
 def write_csv(link_dict, filename):
     with open(filename, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=' ',
-                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        fieldnames = ['placardHeader', 'placardLocation', 'placardPrice']
+        writer = csv.DictWriter(csvfile, fieldnames)
+        writer.writeheader()
         for key, record_dict in link_dict.items():
-            writer.writerow([key,
-                             record_dict.get('placardHeader', 'NO HEADER'),
-                             record_dict.get('placardLocation', 'NO LOCATION'),
-                             record_dict.get('placardPrice', 'NO PRICE')])
+            writer.writerow(record_dict)
 
 
 if __name__ == '__main__':
