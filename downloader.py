@@ -1,6 +1,8 @@
+import csv
 import re
 import unicodedata
 from collections import defaultdict
+from datetime import date
 
 import requests
 from bs4 import BeautifulSoup
@@ -36,6 +38,17 @@ def map_placard_links(placard_links, link_dict):
         record = { class_ : value }
         link_dict[l['href']].update(record)
 
+def write_csv(link_dict, filename):
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=' ',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        for key, record_dict in link_dict.items():
+            writer.writerow([key,
+                             record_dict.get('placardHeader', 'NO HEADER'),
+                             record_dict.get('placardLocation', 'NO LOCATION'),
+                             record_dict.get('placardPrice', 'NO PRICE')])
+
+
 if __name__ == '__main__':
     html_doc = get_html_page(WSR_URL)
     soup = BeautifulSoup(html_doc, 'html.parser')
@@ -54,3 +67,9 @@ if __name__ == '__main__':
             soup = BeautifulSoup(html_doc, 'html.parser')
             placard_links = get_placard_links(soup)
             map_placard_links(placard_links, link_dict)
+
+    print('Writing results to CSV')
+    today = date.today()
+    filename = f"{today.strftime('%b-%d-%Y')}_wsr.csv"
+
+    write_csv(link_dict, filename)
